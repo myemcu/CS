@@ -12,6 +12,7 @@
 class Role:
     def __init__(self, name):
         self.name = name
+        self.blood = 100
 
     def install_bullet(self, clip, bullet):
         clip.save_bullet(bullet)
@@ -23,6 +24,13 @@ class Role:
     def fire(self, gun, enemy):
         gun.shoot(enemy)
 
+    # 敌人掉血
+    def lose_blood(self, damage):
+        self.blood -= damage
+
+    def __str__(self):
+        return '-------------' + self.name + '当前血量：' + str(self.blood)
+
 
 class Clip:
     def __init__(self, capacity):
@@ -30,7 +38,7 @@ class Clip:
         self.bullet_list = []
 
     def save_bullet(self, bullet):
-        # 子弹对象安装到弹夹列表(列表变化必须约束范围)
+        # 子弹对象安装到弹夹列表(列表变化必须首先约束范围)
         if len(self.bullet_list) < self.capacity:
             self.bullet_list.append(bullet)
 
@@ -38,7 +46,7 @@ class Clip:
         return "当前弹量：" + str(len(self.bullet_list)) + '/' + str(self.capacity)
 
     def out_bullet(self):
-        if len(self.bullet_list) > 0:       # 列表变化必须约束范围
+        if len(self.bullet_list) > 0:       # 列表变化必须首先约束范围
             bullet = self.bullet_list[-1]   # 从列表尾部读取一个子弹对象
             self.bullet_list.pop()          # 弹出 一个子弹对象
             return bullet
@@ -47,8 +55,12 @@ class Clip:
 
 
 class Bullet:
-    pass
+    def __init__(self, damage):
+        self.damage = damage
 
+    def hurt(self, enemy):
+        enemy.lose_blood(self.damage)
+        
 
 class Gun:
     def __init__(self):
@@ -64,18 +76,18 @@ class Gun:
         if not self.clip:
             self.clip = clip
 
-    # 射击这个动作就是读取Clip类中的子弹对象
+    # 读取Clip类中的子弹对象
     def shoot(self, enemy):
         current_bullet = self.clip.out_bullet()
         if current_bullet:
-            pass
+            current_bullet.hurt(enemy)
         else:
             print('没子弹了，空枪!')
 
 
 new_police = Role('警察')
-new_clip = Clip(10)
-new_bullet = Bullet()
+new_clip = Clip(10)             # 存入弹量：10
+new_bullet = Bullet(5)          # 杀伤力：5
 
 print(new_clip)     # 显示当前弹量
 
@@ -94,7 +106,8 @@ print(new_gun)
 # 创建敌人对象
 new_enemy = Role('敌人')
 
-# 警察朝敌人开枪————子弹减少
+# 警察朝敌人开枪————子弹减少————敌人掉血
 for j in range(0, 6):
     new_police.fire(new_gun, new_enemy)
-    print(new_clip)
+    print(new_clip)     # 显示弹量
+    print(new_enemy)    # 先生血量

@@ -15,6 +15,8 @@ class Role:
     def install_bullet(self, clip, bullet):
         clip.save_bullet(bullet)
 
+    def install_clip(self, gun, clip):
+        gun.save_clip(clip)
 
 class Clip:
     def __init__(self, capacity):
@@ -34,6 +36,21 @@ class Bullet:
     pass
 
 
+class Gun:
+    def __init__(self):
+        self.clip = None
+
+    def __str__(self):
+        if not self.clip:
+            return '枪无弹夹'
+        else:
+            return '枪有弹夹'
+
+    def save_clip(self, clip):
+        if not self.clip:
+            self.clip = clip
+
+
 new_police = Role('警察')
 new_clip = Clip(10)
 new_bullet = Bullet()
@@ -45,3 +62,9 @@ for i in range(0, 5):
     new_police.install_bullet(new_clip, new_bullet)
 
 print(new_clip)     # 显示当前弹量
+
+new_gun = Gun()
+# 警察安装弹夹到枪
+print(new_gun)
+new_police.install_clip(new_gun, new_clip)
+print(new_gun)
